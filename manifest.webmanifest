@@ -1,0 +1,15 @@
+{
+  "name": "Heideland Tools",
+  "short_name": "Heideland Tools",
+  "description": "Werkstatt-App: Bogenmaß, Mantelausschnitt, Klöpperboden, Störungserfassung",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#050f1c",
+  "theme_color": "#071629",
+  "lang": "de",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
