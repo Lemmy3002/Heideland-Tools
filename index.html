@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#071629">
-<title>Heideland Tools V2.0 · Werkstatt-App</title>
+<title>Heideland Tools V2.1 · Werkstatt-App</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
@@ -279,7 +279,7 @@ td input,td select{font-size:14px;padding:8px}
       <div class="hero">
         <img class="hero-logo" data-logo alt="Heideland Tools Logo">
         <div class="hero-copy">
-          <span class="version">V2.0 · OFFLINE · EINE APP</span>
+          <span class="version">V2.1 · OFFLINE · EINE APP</span>
           <h2>Rechnen.<br>Anreißen.<br>Fertig.</h2>
           <p>Technische Schnellrechner und mobile Störungserfassung für die Werkstatt. Keine Anmeldung, kein Internet und keine Makros erforderlich.</p>
           <div class="home-fun">🎢 Heute geöffnet: Bogenmaßbahn, Mantelausschnitt, Klöpperboden und freie Fahrt nach der Störung.</div>
@@ -432,7 +432,7 @@ td input,td select{font-size:14px;padding:8px}
 
     <section id="screen-kloepper" class="screen">
       <div class="section-title">
-        <div><h2>Klöpperboden · Stutzenausschnitt</h2><p>V2.0 · Eingabe wie in der Zeichnung · räumlich gerechnet · Lochschablone, Rohrabwicklung, Anreißtabelle</p></div>
+        <div><h2>Klöpperboden · Stutzenausschnitt</h2><p>V2.1 · Eingabe wie in der Zeichnung · räumlich gerechnet · Lochschablone, Rohrabwicklung, Anreißtabelle</p></div>
         <button class="back-btn" onclick="go('home')">← Startseite</button>
       </div>
       <div class="mantle-layout">
@@ -450,7 +450,7 @@ td input,td select{font-size:14px;padding:8px}
             <div class="field"><label for="kbMy">M senkrecht [mm]</label><input id="kbMy" type="number" step="1" value="-780"><div class="help">ab Behältermitte · + darüber, − darunter</div></div>
             <div class="field full"><div class="help" style="margin-top:-4px"><b>M</b> = Punkt, an dem die Rohrachse die Bodenaußenseite durchstößt (so bemaßt die Konstruktion).</div></div>
             <div class="field"><label for="kbRef">Rohrwinkel bezogen auf</label><select id="kbRef"><option value="axis" selected>Behälterachse</option><option value="plane">Bodenebene (Rundnaht)</option></select></div>
-            <div class="field"><label for="kbIncl">Winkel [°]</label><input id="kbIncl" type="number" step="0.1" value="15"><div class="help" id="kbInclHelp">0° = parallel zur Behälterachse</div></div>
+            <div class="field"><label for="kbIncl">Winkel [°]</label><input id="kbIncl" type="number" step="0.1" value="15"><div class="help" id="kbInclHelp">0° = parallel zur Behälterachse · 90° = quer dazu</div></div>
             <div class="field"><label for="kbFrom">Rohr kommt (außen) von</label><select id="kbFrom"><option value="unten" selected>unten</option><option value="oben">oben</option><option value="rechts">rechts</option><option value="links">links</option><option value="rand">vom Bodenrand her</option><option value="mitte">von der Bodenmitte her</option><option value="frei">freier Winkel</option></select><div class="help">Blick von außen auf den Boden</div></div>
             <div class="field"><label for="kbFree">Freier Winkel [°]</label><input id="kbFree" type="number" step="0.1" value="0" disabled><div class="help">0° = von rechts · 90° = von oben</div></div>
             <div class="field"><label for="kbAllowance">Brennzugabe radial</label><select id="kbAllowance"><option value="0" selected>0 mm</option><option value="1">1 mm</option><option value="2">2 mm</option></select></div>
@@ -908,8 +908,8 @@ function kbCheckParams(p){
   if(!(p.pipe>0&&p.pipe<p.D*.6)) throw new Error('Bitte einen sinnvollen Rohrdurchmesser eingeben.');
   if(p.mount==='aufgesetzt'&&!(p.wall>0&&p.wall<p.pipe/2)) throw new Error('Bei „aufgesetzt“ bitte die Wandstärke des Rohrs eingeben.');
   if(!Number.isFinite(p.incl)) throw new Error('Bitte einen Winkel eingeben.');
-  if(p.refMode==='axis'&&!(p.incl>=0&&p.incl<85)) throw new Error('Winkel zur Behälterachse: 0° bis 85°.');
-  if(p.refMode==='plane'&&!(p.incl>5&&p.incl<=90)) throw new Error('Winkel zur Bodenebene: über 5° bis 90°.');
+  if(p.refMode==='axis'&&!(p.incl>=0&&p.incl<=90)) throw new Error('Winkel zur Behälterachse: 0° bis 90°.');
+  if(p.refMode==='plane'&&!(p.incl>=0&&p.incl<=90)) throw new Error('Winkel zur Bodenebene: 0° bis 90°.');
 }
 function kbPosName(i,g,ang){
   const names={0:'12 Uhr',90:'3 Uhr',180:'6 Uhr',270:'9 Uhr'};
@@ -927,6 +927,8 @@ function kbPoints(g){
 function kbWarnings(g){
   const w=[];
   if(g.region!=='Kalotte') w.push(['warning','Das Loch liegt (teilweise) in der <b>Krempe</b>. Dort ist der Boden stark gewölbt – Papier gut anschmiegen und mit der Anreißtabelle nachprüfen.']);
+  const toPlane=g.p.refMode==='plane'?g.p.incl:90-g.p.incl;
+  if(toPlane<=5) w.push(['warning',`Das Rohr läuft (fast) <b>parallel zur Bodenebene</b> (${fmt(toPlane,1)}°), z. B. senkrecht von oben/unten an einem liegenden Behälter. Bitte prüfen, ob „Rohr kommt von“ stimmt. Ist das Rohr durchgesteckt und innen bündig, gilt in der Rohrabwicklung die <b>gestrichelte</b> Linie (Innenseite Boden).`]);
   if(g.incidence<35) w.push(['warning',`Das Rohr läuft sehr flach in den Boden (${fmt(g.incidence,1)}° zur Oberfläche). Brenner parallel zur Rohrachse führen – oder senkrecht brennen und jeweils um die äußere der beiden Linien (durchgezogen/gestrichelt) schneiden.`]);
   w.push(['info','<b>Vor dem Brennen:</b> Lochlänge × Breite mit der Konstruktion abgleichen und das 100-mm-Kontrollmaß auf dem Ausdruck nachmessen.']);
   return w.map(([c,t])=>`<div class="${c}">${t}</div>`).join('');
@@ -935,10 +937,10 @@ function kbScheduleCalc(){clearTimeout(kbTimer);kbTimer=setTimeout(calcKloepper,
 function calcKloepper(){
   const err=$('kbError');err.style.display='none';
   $('kbFree').disabled=$('kbFrom').value!=='frei';
-  $('kbInclHelp').textContent=$('kbRef').value==='axis'?'0° = parallel zur Behälterachse':'90° = senkrecht zur Bodenebene';
+  $('kbInclHelp').textContent=$('kbRef').value==='axis'?'0° = parallel zur Behälterachse · 90° = quer dazu':'0° = parallel zur Bodenebene (z. B. senkrecht von oben) · 90° = senkrecht zur Bodenebene';
   let g;
   try{const p=kbParams();kbCheckParams(p);g=kbCompute(p)}
-  catch(e){kbLast=null;err.textContent=e.message;err.style.display='block';$('kbSvg').innerHTML='';$('kbRows').innerHTML='';$('kbStatus').textContent='Prüfen';$('kbStatus').classList.add('warn');return}
+  catch(e){kbLast=null;const pp=kbParams(),tp=pp.refMode==='plane'?pp.incl:90-pp.incl;err.textContent=e.message+(tp<=5&&/Kontur|Bodenrand/.test(e.message)?' Das Rohr streift hier nur am Boden entlang – bitte prüfen, ob „Rohr kommt von“ stimmt.':'');err.style.display='block';$('kbSvg').innerHTML='';$('kbRows').innerHTML='';$('kbStatus').textContent='Prüfen';$('kbStatus').classList.add('warn');return}
   kbLast=g;
   const p=g.p;
   $('kbStatus').textContent='Geometrie OK';$('kbStatus').classList.remove('warn');
@@ -1107,7 +1109,7 @@ function createPdfDocumentPages(pages,title){
     kids.push(add(`<< /Type /Page /Parent ${pagesObj} 0 R /MediaBox [0 0 ${pdfN(pdfPt(pg.w))} ${pdfN(pdfPt(pg.h))}] /Resources << /Font << /F1 ${fR} 0 R /F2 ${fB} 0 R >> >> /Contents ${c} 0 R >>`))});
   objects[pagesObj-1]=`<< /Type /Pages /Count ${kids.length} /Kids [${kids.map(i=>i+' 0 R').join(' ')}] >>`;
   const cat=add(`<< /Type /Catalog /Pages ${pagesObj} 0 R >>`);
-  const info=add(`<< /Title ${pdfHex(title)} /Author ${pdfHex('Heideland Tools - © Leve')} /Creator ${pdfHex('Heideland Tools V2.0')} >>`);
+  const info=add(`<< /Title ${pdfHex(title)} /Author ${pdfHex('Heideland Tools - © Leve')} /Creator ${pdfHex('Heideland Tools V2.1')} >>`);
   let pdf='%PDF-1.4\n%HTPDF\n';const offs=[0];
   objects.forEach((o,i)=>{offs.push(pdfByteLength(pdf));pdf+=`${i+1} 0 obj\n${o}\nendobj\n`});
   const xref=pdfByteLength(pdf);pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;
@@ -1342,7 +1344,7 @@ function createPdfDocument(pageContents,pageW,pageH,title){
   });
   objects[pagesObject-1]=`<< /Type /Pages /Count ${pageObjects.length} /Kids [${pageObjects.map(id=>id+' 0 R').join(' ')}] >>`;
   const catalog=add(`<< /Type /Catalog /Pages ${pagesObject} 0 R >>`);
-  const info=add(`<< /Title ${pdfHex(title)} /Author ${pdfHex('Heideland Tools - © Leve')} /Creator ${pdfHex('Heideland Tools V2.0')} >>`);
+  const info=add(`<< /Title ${pdfHex(title)} /Author ${pdfHex('Heideland Tools - © Leve')} /Creator ${pdfHex('Heideland Tools V2.1')} >>`);
   let pdf='%PDF-1.4\n%HTPDF\n';
   const offsets=[0];
   objects.forEach((object,index)=>{
